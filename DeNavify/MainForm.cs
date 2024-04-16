@@ -49,21 +49,29 @@ namespace DeNavify
                 return;
             }
 
+            for (int i = 0; i < symbols.Length; i++)
+            {
+                if (symbols[i] == "--")
+                {
+                    MessageBox.Show("Invalid Text","Error Encountered", MessageBoxButtons.OK,MessageBoxIcon.Error);
+                    return;
+                }
+            }   
+
 
             string strScript = "REPLACE(@oldTableName, '" + symbols[0] + "', '')";
 
+          
             for (int i=1; i<symbols.Length; i++)    
             {
-                strScript = "REPLACE(" + strScript + ",'" + symbols[i] +"','')";                
+                strScript = "REPLACE(" + strScript + ",'" + symbols[i] + "','')";
             }
-
-            strScript = strScript.Replace("--", "").Replace("'","''");
 
             string dbUser = username.Text.Trim();
             string dbPass = password.Text.Trim();
             string server = DbServer.Text.Trim();
             string database = DbComboBox.Text.Trim();
-
+            
 
             if (string.IsNullOrEmpty(database))
             {
@@ -81,65 +89,67 @@ namespace DeNavify
                     MessageBox.Show("Connection successful!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                     string script = $@"DECLARE @oldTableName NVARCHAR(255)
-DECLARE @newTableName NVARCHAR(255)
-DECLARE @oldColumnName NVARCHAR(255)
-DECLARE @newColumnName NVARCHAR(255)
+                    DECLARE @newTableName NVARCHAR(255)
+                    DECLARE @oldColumnName NVARCHAR(255)
+                    DECLARE @newColumnName NVARCHAR(255)
 
-DECLARE tableCursor CURSOR FOR
-SELECT [name]
-FROM sys.tables
+                    DECLARE tableCursor CURSOR FOR
+                    SELECT [name]
+                    FROM sys.tables
 
-OPEN tableCursor
+                    OPEN tableCursor
 
-FETCH NEXT FROM tableCursor INTO @oldTableName
+                    FETCH NEXT FROM tableCursor INTO @oldTableName
 
-WHILE @@FETCH_STATUS = 0
-BEGIN
-    SET @newTableName = "+strScript+@"
+                    WHILE @@FETCH_STATUS = 0
+                    BEGIN
+                        SET @newTableName = "+strScript+@"
 
-    IF @oldTableName <> @newTableName
-    BEGIN
-        DECLARE @sql NVARCHAR(MAX)
-        SET @sql = 'EXEC sp_rename ''' + @oldTableName + ''', ''' + @newTableName + ''''
-        EXEC sp_executesql @sql
-    END
-    -- Now, iterate through columns of the table
-    DECLARE columnCursor CURSOR FOR
-SELECT [name]
-FROM sys.columns
-WHERE object_id = OBJECT_ID(@oldTableName)
+                        IF @oldTableName <> @newTableName
+                        BEGIN
+                            DECLARE @sql NVARCHAR(MAX)
+                            SET @sql = 'EXEC sp_rename ''' + @oldTableName + ''', ''' + @newTableName + ''''
+                            EXEC sp_executesql @sql
+                        END
+                        -- Now, iterate through columns of the table
+                        DECLARE columnCursor CURSOR FOR
+                    SELECT [name]
+                    FROM sys.columns
+                    WHERE object_id = OBJECT_ID(@oldTableName)
 
-OPEN columnCursor
-FETCH NEXT FROM columnCursor INTO @oldColumnName
+                    OPEN columnCursor
+                    FETCH NEXT FROM columnCursor INTO @oldColumnName
 
-WHILE @@FETCH_STATUS = 0
-BEGIN
-    SET @newColumnName = "+ strScript.Replace("@oldTableName","@oldColumnName") + @"
+                    WHILE @@FETCH_STATUS = 0
+                    BEGIN
+                        SET @newColumnName = "+ strScript.Replace("@oldTableName","@oldColumnName") + @"
 
-    IF @oldColumnName <> @newColumnName
-    BEGIN
-        DECLARE @columnSql NVARCHAR(MAX)
-        SET @columnSql = 'EXEC sp_rename ''' + @oldTableName + '.' + @oldColumnName + ''', ''' + @newColumnName + ''', ''COLUMN'''
-        EXEC sp_executesql @columnSql
-    END
+                        IF @oldColumnName <> @newColumnName
+                        BEGIN
+                            DECLARE @columnSql NVARCHAR(MAX)
+                            SET @columnSql = 'EXEC sp_rename ''' + @oldTableName + '.' + @oldColumnName + ''', ''' + @newColumnName + ''', ''COLUMN'''
+                            EXEC sp_executesql @columnSql
+                            PRINT 'Column ' + @oldColumnName + ' in table ' + @oldTableName + ' has been renamed to ' + @newColumnName
+                        END
 
-    FETCH NEXT FROM columnCursor INTO @oldColumnName
-END
+                        FETCH NEXT FROM columnCursor INTO @oldColumnName
+                    END
 
-CLOSE columnCursor
-DEALLOCATE columnCursor
+                    CLOSE columnCursor
+                    DEALLOCATE columnCursor
 
-    FETCH NEXT FROM tableCursor INTO @oldTableName
-END
+                        FETCH NEXT FROM tableCursor INTO @oldTableName
+                    END
 
-CLOSE tableCursor
-DEALLOCATE tableCursor
- ";
+                    CLOSE tableCursor
+                    DEALLOCATE tableCursor
+                     ";
 
                     using (SqlCommand command = new SqlCommand(script,connection))
                     {
                         int rowsAffected = command.ExecuteNonQuery();
                         MessageBox.Show($"Table names have been de-navified successfully! Rows affected: {rowsAffected}", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
                     }
                 }
             }
