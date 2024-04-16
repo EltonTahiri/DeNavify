@@ -103,7 +103,7 @@ namespace DeNavify
 
                     WHILE @@FETCH_STATUS = 0
                     BEGIN
-                        SET @newTableName = "+strScript+@"
+                        SET @newTableName = " + strScript + @"
 
                         IF @oldTableName <> @newTableName
                         BEGIN
@@ -122,7 +122,7 @@ namespace DeNavify
 
                     WHILE @@FETCH_STATUS = 0
                     BEGIN
-                        SET @newColumnName = "+ strScript.Replace("@oldTableName","@oldColumnName") + @"
+                        SET @newColumnName = " + strScript.Replace("@oldTableName", "@oldColumnName") + @"
 
                         IF @oldColumnName <> @newColumnName
                         BEGIN
@@ -145,10 +145,92 @@ namespace DeNavify
                     DEALLOCATE tableCursor
                      ";
 
+                    string sql = String.Format("SELECT * FROM INFORMATION_SCHEMA.TABLES t where T.TABLE_CATALOG = '{0}' AND (", database);
+
+                    for (int i=0; i<symbols.Length; i++)
+                    {
+                        sql += String.Format("t.TABLE_NAME like '%{0}%'", symbols[i]);
+                        if (i < symbols.Length - 1)
+                            sql += " OR ";
+                    }
+
+                    sql += ")";
+
+                    string sqlFields = "select * from INFORMATION_SCHEMA.COLUMNS c where c.TABLE_CATALOG = '"+database+"'";
+
+
+                    List<ChangedTable> tablesToBeChanged = new List<ChangedTable>();
+                    
+
+                    using (SqlDataAdapter da = new SqlDataAdapter(sql, connection))
+                    {
+                        using (DataSet ds = new DataSet())
+                        {
+                            da.Fill(ds);
+                            DataTable dt = ds.Tables[0];
+                            string strTablename = String.Empty;
+                            //For each table extract columns containing special chars
+                            foreach (DataRow dr in dt.Rows)
+                            {
+                                strTablename = dr["TABLE_NAME"].ToString();
+                                
+                                //Add table to be changed
+                                ChangedTable changedTable = new ChangedTable();
+                                changedTable.Name = strTablename;
+
+
+                                sqlFields += String.Format(" AND c.TABLE_NAME = '{0}' AND (", strTablename);
+
+                                for (int i = 0; i < symbols.Length; i++)
+                                {
+                                    sqlFields += String.Format("c.COLUMN_NAME like '%{0}%'", symbols[i]);
+                                    if (i < symbols.Length - 1)
+                                        sqlFields += " OR ";
+                                }
+                                
+                                sqlFields += ")";
+
+                                using (SqlDataAdapter daFields = new SqlDataAdapter(sqlFields, connection))
+                                {      
+                                    using (DataSet dsFields = new DataSet())
+                                    {
+                                        daFields.Fill(dsFields);
+                                        DataTable dtFields = dsFields.Tables[0];
+                                        string strFieldName = "";
+
+                                        foreach (DataRow drField in dtFields.Rows)
+                                        {
+                                            strFieldName = drField["COLUMN_NAME"].ToString();
+
+                                            changedTable.ChangedFields.Add(new ChangedFields()
+                                            { Name = strFieldName});
+
+                                        }
+
+                                    }
+
+                                }
+                                tablesToBeChanged.Add(changedTable);
+                            }
+                        }
+                    }
+
                     using (SqlCommand command = new SqlCommand(script,connection))
                     {
                         int rowsAffected = command.ExecuteNonQuery();
-                        MessageBox.Show($"Table names have been de-navified successfully! Rows affected: {rowsAffected}", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        string strMessage = "The following elements have been altered: \n";
+
+                        
+                        foreach (ChangedTable t in tablesToBeChanged)
+                        {
+                            strMessage += "\nTABLE: " + t.Name;
+                            foreach (ChangedFields f in t.ChangedFields)
+                            {
+                                strMessage += "\n\t FIELD: "+f.Name;   
+                            }
+                        }
+
+                        MessageBox.Show(strMessage);
 
                     }
                 }
