@@ -57,6 +57,8 @@ namespace DeNavify
                 strScript = "REPLACE(" + strScript + ",'" + symbols[i] +"','')";                
             }
 
+            strScript = strScript.Replace("--", "").Replace("'","''");
+
             string dbUser = username.Text.Trim();
             string dbPass = password.Text.Trim();
             string server = DbServer.Text.Trim();
