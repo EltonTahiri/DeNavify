@@ -43,11 +43,25 @@ namespace DeNavify
 
         private void DeNavifyButton_Click(object sender, EventArgs e)
         {
-            string symbolToRemove = SymbolBox.Text.Trim(); // Get the symbol from the TextBox
+            string[] symbols = SymbolBox.Text.Split(',', StringSplitOptions.RemoveEmptyEntries);
+            if (symbols.Length == 0 ) 
+            {
+                return;
+            }
+
+
+            string strScript = "REPLACE(@oldTableName, '" + symbols[0] + "', '')";
+
+            for (int i=1; i<symbols.Length; i++)    
+            {
+                strScript = "REPLACE(" + strScript + ",'" + symbols[i] +"','')";                
+            }
+
             string dbUser = username.Text.Trim();
             string dbPass = password.Text.Trim();
             string server = DbServer.Text.Trim();
-            string database = DbComboBox.SelectedItem?.ToString();
+            string database = DbComboBox.Text.Trim();
+
 
             if (string.IsNullOrEmpty(database))
             {
@@ -79,7 +93,7 @@ FETCH NEXT FROM tableCursor INTO @oldTableName
 
 WHILE @@FETCH_STATUS = 0
 BEGIN
-    SET @newTableName = REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(@oldTableName, '{symbolToRemove}', ''), CHAR(13), ''), CHAR(10), ''), '$', ''), '[', ''), ']', ''), '_' ,'')
+    SET @newTableName = "+strScript+@"
 
     IF @oldTableName <> @newTableName
     BEGIN
@@ -98,7 +112,7 @@ FETCH NEXT FROM columnCursor INTO @oldColumnName
 
 WHILE @@FETCH_STATUS = 0
 BEGIN
-    SET @newColumnName = REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(@oldColumnName, '{symbolToRemove}', ''), CHAR(13), ''), CHAR(10), ''), '$', ''), '[', ''), ']', '')
+    SET @newColumnName = "+ strScript.Replace("@oldTableName","@oldColumnName") + @"
 
     IF @oldColumnName <> @newColumnName
     BEGIN
@@ -120,7 +134,7 @@ CLOSE tableCursor
 DEALLOCATE tableCursor
  ";
 
-                    using (SqlCommand command = new SqlCommand(script, connection))
+                    using (SqlCommand command = new SqlCommand(script,connection))
                     {
                         int rowsAffected = command.ExecuteNonQuery();
                         MessageBox.Show($"Table names have been de-navified successfully! Rows affected: {rowsAffected}", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);

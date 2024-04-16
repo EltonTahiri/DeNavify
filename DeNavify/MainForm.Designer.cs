@@ -125,16 +125,16 @@
             label3.AutoSize = true;
             label3.Location = new Point(29, 145);
             label3.Name = "label3";
-            label3.Size = new Size(228, 15);
+            label3.Size = new Size(327, 15);
             label3.TabIndex = 8;
-            label3.Text = "Choose the character you want to remove";
+            label3.Text = "Choose characters you want to remove seperated by comma";
             // 
             // SymbolBox
             // 
             SymbolBox.Location = new Point(29, 163);
-            SymbolBox.MaxLength = 1;
+            SymbolBox.MaxLength = 5000;
             SymbolBox.Name = "SymbolBox";
-            SymbolBox.Size = new Size(218, 23);
+            SymbolBox.Size = new Size(327, 23);
             SymbolBox.TabIndex = 4;
             // 
             // MainForm
