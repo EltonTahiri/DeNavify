@@ -12,34 +12,6 @@ namespace DeNavify
             InitializeComponent();
         }
 
-        private void CheckDb_Click(object sender, EventArgs e)
-        {
-            string server = DbServer.Text.Trim();
-            string dbUser = username.Text.Trim();
-            string dbPass = password.Text.Trim();
-
-            if (string.IsNullOrEmpty(server) || string.IsNullOrEmpty(dbUser) || string.IsNullOrEmpty(dbPass))
-            {
-                MessageBox.Show("Please fill in all the required fields.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
-
-            string connectionString = $"Data Source={server};Initial Catalog=master;User ID={dbUser};Password={dbPass}";
-
-            try
-            {
-                using (SqlConnection connection = new SqlConnection(connectionString))
-                {
-                    connection.Open();
-                    MessageBox.Show("Connection successful!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"An error occurred while connecting to the server: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
         private void Form1_Load(object sender, EventArgs e)
         {
             LoadDatabases();
@@ -115,32 +87,31 @@ BEGIN
         SET @sql = 'EXEC sp_rename ''' + @oldTableName + ''', ''' + @newTableName + ''''
         EXEC sp_executesql @sql
     END
-
     -- Now, iterate through columns of the table
     DECLARE columnCursor CURSOR FOR
-    SELECT [name]
-    FROM sys.columns
-    WHERE object_id = OBJECT_ID(@oldTableName)
+SELECT [name]
+FROM sys.columns
+WHERE object_id = OBJECT_ID(@oldTableName)
 
-    OPEN columnCursor
-    FETCH NEXT FROM columnCursor INTO @oldColumnName
+OPEN columnCursor
+FETCH NEXT FROM columnCursor INTO @oldColumnName
 
-    WHILE @@FETCH_STATUS = 0
+WHILE @@FETCH_STATUS = 0
+BEGIN
+    SET @newColumnName = REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(@oldColumnName, '{symbolToRemove}', ''), CHAR(13), ''), CHAR(10), ''), '$', ''), '[', ''), ']', '')
+
+    IF @oldColumnName <> @newColumnName
     BEGIN
-        SET @newColumnName = REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(@oldColumnName, '{symbolToRemove}', ''), CHAR(13), ''), CHAR(10), ''), '$', ''), '[', ''), ']', '')
-
-        IF @oldColumnName <> @newColumnName
-        BEGIN
-            DECLARE @columnSql NVARCHAR(MAX)
-            SET @columnSql = 'EXEC sp_rename ''' + @oldTableName + '.' + @oldColumnName + ''', ''' + @newColumnName + ''', ''COLUMN'''
-            EXEC sp_executesql @columnSql
-        END
-
-        FETCH NEXT FROM columnCursor INTO @oldColumnName
+        DECLARE @columnSql NVARCHAR(MAX)
+        SET @columnSql = 'EXEC sp_rename ''' + @oldTableName + '.' + @oldColumnName + ''', ''' + @newColumnName + ''', ''COLUMN'''
+        EXEC sp_executesql @columnSql
     END
 
-    CLOSE columnCursor
-    DEALLOCATE columnCursor
+    FETCH NEXT FROM columnCursor INTO @oldColumnName
+END
+
+CLOSE columnCursor
+DEALLOCATE columnCursor
 
     FETCH NEXT FROM tableCursor INTO @oldTableName
 END

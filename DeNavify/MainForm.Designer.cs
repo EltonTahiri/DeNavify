@@ -38,7 +38,6 @@
             label2 = new Label();
             DeNavify = new Button();
             DbComboBox = new ComboBox();
-            CheckDb = new Button();
             label3 = new Label();
             SymbolBox = new TextBox();
             SuspendLayout();
@@ -108,7 +107,7 @@
             DeNavify.Location = new Point(628, 287);
             DeNavify.Name = "DeNavify";
             DeNavify.Size = new Size(127, 23);
-            DeNavify.TabIndex = 6;
+            DeNavify.TabIndex = 5;
             DeNavify.Text = "DENAVIFY";
             DeNavify.UseVisualStyleBackColor = true;
             DeNavify.Click += DeNavifyButton_Click;
@@ -120,16 +119,6 @@
             DbComboBox.Name = "DbComboBox";
             DbComboBox.Size = new Size(127, 23);
             DbComboBox.TabIndex = 3;
-            // 
-            // CheckDb
-            // 
-            CheckDb.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            CheckDb.Location = new Point(495, 287);
-            CheckDb.Name = "CheckDb";
-            CheckDb.Size = new Size(127, 23);
-            CheckDb.TabIndex = 5;
-            CheckDb.Text = "CheckDB";
-            CheckDb.UseVisualStyleBackColor = true;
             // 
             // label3
             // 
@@ -143,9 +132,10 @@
             // SymbolBox
             // 
             SymbolBox.Location = new Point(29, 163);
+            SymbolBox.MaxLength = 1;
             SymbolBox.Name = "SymbolBox";
             SymbolBox.Size = new Size(218, 23);
-            SymbolBox.TabIndex = 9;
+            SymbolBox.TabIndex = 4;
             // 
             // MainForm
             // 
@@ -154,7 +144,6 @@
             ClientSize = new Size(767, 322);
             Controls.Add(SymbolBox);
             Controls.Add(label3);
-            Controls.Add(CheckDb);
             Controls.Add(DbComboBox);
             Controls.Add(DeNavify);
             Controls.Add(label2);
@@ -183,7 +172,6 @@
         private Label label2;
         private Button button1;
         private ComboBox DbComboBox;
-        private Button CheckDb;
         private Button DeNavify;
         private Label label3;
         private TextBox SymbolBox;
