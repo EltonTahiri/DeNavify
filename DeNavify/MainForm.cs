@@ -44,7 +44,7 @@ namespace DeNavify
         private void DeNavifyButton_Click(object sender, EventArgs e)
         {
             string[] symbols = SymbolBox.Text.Split(',', StringSplitOptions.RemoveEmptyEntries);
-            if (symbols.Length == 0 ) 
+            if (symbols.Length == 0)
             {
                 return;
             }
@@ -53,16 +53,16 @@ namespace DeNavify
             {
                 if (symbols[i] == "--")
                 {
-                    MessageBox.Show("Invalid Text","Error Encountered", MessageBoxButtons.OK,MessageBoxIcon.Error);
+                    MessageBox.Show("Invalid Text", "Error Encountered", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
-            }   
+            }
 
 
             string strScript = "REPLACE(@oldTableName, '" + symbols[0] + "', '')";
 
-          
-            for (int i=1; i<symbols.Length; i++)    
+
+            for (int i = 1; i < symbols.Length; i++)
             {
                 strScript = "REPLACE(" + strScript + ",'" + symbols[i] + "','')";
             }
@@ -71,7 +71,7 @@ namespace DeNavify
             string dbPass = password.Text.Trim();
             string server = DbServer.Text.Trim();
             string database = DbComboBox.Text.Trim();
-            
+
 
             if (string.IsNullOrEmpty(database))
             {
@@ -147,7 +147,7 @@ namespace DeNavify
 
                     string sql = String.Format("SELECT * FROM INFORMATION_SCHEMA.TABLES t where T.TABLE_CATALOG = '{0}' AND (", database);
 
-                    for (int i=0; i<symbols.Length; i++)
+                    for (int i = 0; i < symbols.Length; i++)
                     {
                         sql += String.Format("t.TABLE_NAME like '%{0}%'", symbols[i]);
                         if (i < symbols.Length - 1)
@@ -156,11 +156,11 @@ namespace DeNavify
 
                     sql += ")";
 
-                    string sqlFields = "select * from INFORMATION_SCHEMA.COLUMNS c where c.TABLE_CATALOG = '"+database+"'";
+                    string sqlFields = "select * from INFORMATION_SCHEMA.COLUMNS c where c.TABLE_CATALOG = '" + database + "'";
 
 
                     List<ChangedTable> tablesToBeChanged = new List<ChangedTable>();
-                    
+
 
                     using (SqlDataAdapter da = new SqlDataAdapter(sql, connection))
                     {
@@ -173,7 +173,7 @@ namespace DeNavify
                             foreach (DataRow dr in dt.Rows)
                             {
                                 strTablename = dr["TABLE_NAME"].ToString();
-                                
+
                                 //Add table to be changed
                                 ChangedTable changedTable = new ChangedTable();
                                 changedTable.Name = strTablename;
@@ -187,11 +187,11 @@ namespace DeNavify
                                     if (i < symbols.Length - 1)
                                         sqlFields += " OR ";
                                 }
-                                
+
                                 sqlFields += ")";
 
                                 using (SqlDataAdapter daFields = new SqlDataAdapter(sqlFields, connection))
-                                {      
+                                {
                                     using (DataSet dsFields = new DataSet())
                                     {
                                         daFields.Fill(dsFields);
@@ -203,7 +203,7 @@ namespace DeNavify
                                             strFieldName = drField["COLUMN_NAME"].ToString();
 
                                             changedTable.ChangedFields.Add(new ChangedFields()
-                                            { Name = strFieldName});
+                                            { Name = strFieldName });
 
                                         }
 
@@ -215,18 +215,55 @@ namespace DeNavify
                         }
                     }
 
-                    using (SqlCommand command = new SqlCommand(script,connection))
+                    //fields to be changed independently from the table name
+                    string sqlFieldsInd = "select * from INFORMATION_SCHEMA.COLUMNS c where c.TABLE_CATALOG = '" + database + "'";
+
+                    sqlFieldsInd += " AND (";
+
+                    for (int i = 0; i < symbols.Length; i++)
+                    {
+                        sqlFieldsInd += String.Format("c.COLUMN_NAME like '%{0}%'", symbols[i]);
+                        if (i < symbols.Length - 1)
+                            sqlFieldsInd += " OR ";
+                    }
+
+                    sqlFieldsInd += ")";
+
+                    using (SqlDataAdapter daFields = new SqlDataAdapter(sqlFieldsInd, connection))
+                    {
+                        using (DataSet dsFields = new DataSet())
+                        {
+                            daFields.Fill(dsFields);
+                            DataTable dtFields = dsFields.Tables[0];
+                            string strFieldName = "";
+
+
+                            foreach (DataRow drField in dtFields.Rows)
+                            {
+                                ChangedTable changedFieldTable = new ChangedTable();
+                                strFieldName = drField["COLUMN_NAME"].ToString();
+                                changedFieldTable.Name = drField["TABLE_NAME"].ToString();
+                                changedFieldTable.ChangedFields.Add(new ChangedFields()
+                                { Name = strFieldName });
+                                tablesToBeChanged.Add(changedFieldTable);
+                            }
+
+                        }
+
+                    }
+
+                    using (SqlCommand command = new SqlCommand(script, connection))
                     {
                         int rowsAffected = command.ExecuteNonQuery();
                         string strMessage = "The following elements have been altered: \n";
 
-                        
+
                         foreach (ChangedTable t in tablesToBeChanged)
                         {
                             strMessage += "\nTABLE: " + t.Name;
                             foreach (ChangedFields f in t.ChangedFields)
                             {
-                                strMessage += "\n\t FIELD: "+f.Name;   
+                                strMessage += "\n\t FIELD: " + f.Name;
                             }
                         }
 

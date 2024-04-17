@@ -114,6 +114,8 @@
             // 
             // DbComboBox
             // 
+            DbComboBox.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+            DbComboBox.AutoCompleteSource = AutoCompleteSource.ListItems;
             DbComboBox.FormattingEnabled = true;
             DbComboBox.Location = new Point(620, 47);
             DbComboBox.Name = "DbComboBox";
