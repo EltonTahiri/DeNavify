@@ -36,24 +36,28 @@
             DbServer = new TextBox();
             label1 = new Label();
             label2 = new Label();
-            DeNavify = new Button();
             DbComboBox = new ComboBox();
             label3 = new Label();
             SymbolBox = new TextBox();
+            helpProvider1 = new HelpProvider();
+            helpProvider2 = new HelpProvider();
+            helpProvider = new HelpProvider();
+            DeNavify = new MaterialSkin.Controls.MaterialButton();
             SuspendLayout();
             // 
             // username
             // 
-            username.Location = new Point(29, 47);
+            username.Cursor = Cursors.IBeam;
+            username.Location = new Point(29, 125);
             username.Name = "username";
-            username.Size = new Size(127, 23);
+            username.Size = new Size(130, 23);
             username.TabIndex = 0;
             username.Text = "sa";
             // 
             // DbUSER
             // 
             DbUSER.AutoSize = true;
-            DbUSER.Location = new Point(29, 29);
+            DbUSER.Location = new Point(29, 107);
             DbUSER.Name = "DbUSER";
             DbUSER.Size = new Size(45, 15);
             DbUSER.TabIndex = 1;
@@ -61,32 +65,34 @@
             // 
             // password
             // 
-            password.Location = new Point(233, 47);
+            password.Location = new Point(29, 181);
             password.Name = "password";
             password.PasswordChar = '*';
-            password.Size = new Size(127, 23);
-            password.TabIndex = 1;
+            password.Size = new Size(130, 23);
+            password.TabIndex = 2;
             // 
             // DbPass
             // 
             DbPass.AutoSize = true;
-            DbPass.Location = new Point(233, 29);
+            DbPass.Location = new Point(29, 163);
             DbPass.Name = "DbPass";
             DbPass.Size = new Size(45, 15);
             DbPass.TabIndex = 3;
             DbPass.Text = "DbPass";
+            DbPass.Click += DbPass_Click;
             // 
             // DbServer
             // 
-            DbServer.Location = new Point(435, 47);
+            DbServer.Location = new Point(204, 125);
             DbServer.Name = "DbServer";
-            DbServer.Size = new Size(127, 23);
-            DbServer.TabIndex = 2;
+            DbServer.Size = new Size(136, 23);
+            DbServer.TabIndex = 1;
+            DbServer.TextChanged += DbServer_TextChanged;
             // 
             // label1
             // 
             label1.AutoSize = true;
-            label1.Location = new Point(435, 29);
+            label1.Location = new Point(205, 107);
             label1.Name = "label1";
             label1.Size = new Size(39, 15);
             label1.TabIndex = 5;
@@ -95,59 +101,73 @@
             // label2
             // 
             label2.AutoSize = true;
-            label2.Location = new Point(632, 29);
+            label2.Location = new Point(205, 163);
             label2.Name = "label2";
             label2.Size = new Size(55, 15);
             label2.TabIndex = 7;
             label2.Text = "Database";
-            // 
-            // DeNavify
-            // 
-            DeNavify.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            DeNavify.Location = new Point(628, 287);
-            DeNavify.Name = "DeNavify";
-            DeNavify.Size = new Size(127, 23);
-            DeNavify.TabIndex = 5;
-            DeNavify.Text = "DENAVIFY";
-            DeNavify.UseVisualStyleBackColor = true;
-            DeNavify.Click += DeNavifyButton_Click;
+            label2.Click += label2_Click;
             // 
             // DbComboBox
             // 
             DbComboBox.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
             DbComboBox.AutoCompleteSource = AutoCompleteSource.ListItems;
             DbComboBox.FormattingEnabled = true;
-            DbComboBox.Location = new Point(620, 47);
+            DbComboBox.Location = new Point(204, 181);
             DbComboBox.Name = "DbComboBox";
-            DbComboBox.Size = new Size(127, 23);
+            DbComboBox.Size = new Size(136, 23);
             DbComboBox.TabIndex = 3;
+            DbComboBox.SelectedIndexChanged += DbComboBox_SelectedIndexChanged;
             // 
             // label3
             // 
             label3.AutoSize = true;
-            label3.Location = new Point(29, 145);
+            label3.Location = new Point(62, 235);
             label3.Name = "label3";
-            label3.Size = new Size(327, 15);
+            label3.Size = new Size(153, 15);
             label3.TabIndex = 8;
-            label3.Text = "Choose characters you want to remove seperated by comma";
+            label3.Text = "Write a character to remove";
+            label3.TextAlign = ContentAlignment.TopRight;
             // 
             // SymbolBox
             // 
-            SymbolBox.Location = new Point(29, 163);
+            SymbolBox.Location = new Point(50, 253);
             SymbolBox.MaxLength = 5000;
             SymbolBox.Name = "SymbolBox";
-            SymbolBox.Size = new Size(327, 23);
+            SymbolBox.Size = new Size(278, 23);
             SymbolBox.TabIndex = 4;
+            SymbolBox.TextChanged += SymbolBox_TextChanged;
+            // 
+            // DeNavify
+            // 
+            DeNavify.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            DeNavify.Density = MaterialSkin.Controls.MaterialButton.MaterialButtonDensity.Default;
+            DeNavify.Depth = 0;
+            DeNavify.HighEmphasis = true;
+            DeNavify.Icon = null;
+            DeNavify.Location = new Point(148, 295);
+            DeNavify.Margin = new Padding(4, 6, 4, 6);
+            DeNavify.MouseState = MaterialSkin.MouseState.HOVER;
+            DeNavify.Name = "DeNavify";
+            DeNavify.NoAccentTextColor = Color.Empty;
+            DeNavify.Size = new Size(91, 36);
+            DeNavify.TabIndex = 5;
+            DeNavify.Text = "DeNavify";
+            DeNavify.Type = MaterialSkin.Controls.MaterialButton.MaterialButtonType.Contained;
+            DeNavify.UseAccentColor = false;
+            DeNavify.UseVisualStyleBackColor = true;
+            DeNavify.Click += DeNavifyButton_Click;
             // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(767, 322);
+            AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            ClientSize = new Size(370, 370);
+            Controls.Add(DeNavify);
             Controls.Add(SymbolBox);
             Controls.Add(label3);
             Controls.Add(DbComboBox);
-            Controls.Add(DeNavify);
             Controls.Add(label2);
             Controls.Add(label1);
             Controls.Add(DbServer);
@@ -155,9 +175,19 @@
             Controls.Add(password);
             Controls.Add(DbUSER);
             Controls.Add(username);
+            FormBorderStyle = FormBorderStyle.FixedSingle;
+            FormStyle = FormStyles.ActionBar_48;
+            helpProvider.SetHelpKeyword(this, "Help");
             Icon = (Icon)resources.GetObject("$this.Icon");
+            MaximizeBox = false;
+            MaximumSize = new Size(370, 370);
+            MinimumSize = new Size(370, 370);
             Name = "MainForm";
-            Text = "Denav";
+            Padding = new Padding(3, 72, 3, 3);
+            helpProvider.SetShowHelp(this, true);
+            SizeGripStyle = SizeGripStyle.Hide;
+            StartPosition = FormStartPosition.CenterScreen;
+            Text = "DeNavify";
             Load += Form1_Load;
             ResumeLayout(false);
             PerformLayout();
@@ -174,8 +204,11 @@
         private Label label2;
         private Button button1;
         private ComboBox DbComboBox;
-        private Button DeNavify;
         private Label label3;
         private TextBox SymbolBox;
+        private HelpProvider helpProvider1;
+        private HelpProvider helpProvider2;
+        private HelpProvider helpProvider;
+        private MaterialSkin.Controls.MaterialButton DeNavify;
     }
 }
