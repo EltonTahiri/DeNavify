@@ -164,31 +164,30 @@ namespace DeNavify
                     DEALLOCATE tableCursor";
 
                     // SQL query to retrieve tables matching symbols
-                    string sql = String.Format("SELECT * FROM INFORMATION_SCHEMA.TABLES t where T.TABLE_CATALOG = '{0}' AND (", database);
+                    string sql = String.Format("SELECT * FROM INFORMATION_SCHEMA.TABLES t " +
+                    "WHERE T.TABLE_CATALOG = '{0}' AND T.TABLE_TYPE='TABLE' AND (", database);
 
-                    // Build WHERE clause to search for tables containing symbols in their names
                     for (int i = 0; i < symbols.Length; i++)
                     {
-                        sql += String.Format("t.TABLE_NAME like '%{0}%'", symbols[i]);
+                        switch (symbols[i])
+                        {
+                            case "_":
+                            case "%":
+                                sql += String.Format("t.TABLE_NAME like '%\\_{0}%' ESCAPE '\\' OR t.TABLE_NAME like '%\\%{0}%' ESCAPE '\\')", symbols[i]);
+                                break;
+                            default:
+                                sql += String.Format("t.TABLE_NAME like '%{0}%'", symbols[i]);
+                                break;
+                        }
+
                         if (i < symbols.Length - 1)
                             sql += " OR ";
                     }
-
-                    sql += ")";
+                  
 
                     // SQL query to retrieve columns matching symbols
-                    string sqlFields = "select * from INFORMATION_SCHEMA.COLUMNS c where c.TABLE_CATALOG = '" + database + "'";
-
-                    // Add WHERE clause to search for columns containing symbols in their names
-                    sqlFields += " AND (";
-                    for (int i = 0; i < symbols.Length; i++)
-                    {
-                        sqlFields += String.Format("c.COLUMN_NAME like '%{0}%'", symbols[i]);
-                        if (i < symbols.Length - 1)
-                            sqlFields += " OR ";
-                    }
-                    sqlFields += ")";
-
+                    string sqlFields = "select * from INFORMATION_SCHEMA.COLUMNS c INNER JOIN INFORMATION_SCHEMA.TABLES t on t.TABLE_NAME = c.TABLE_NAME and t.TABLE_CATALOG = c.TABLE_CATALOG where c.TABLE_CATALOG = '" +"'"+ database + "' " +"AND t.TABLE_TYPE='TABLE' and";
+                  
                     // List to store tables and their changed fields
                     List<ChangedTable> tablesToBeChanged = new List<ChangedTable>();
 
@@ -213,10 +212,20 @@ namespace DeNavify
                                 // Build SQL query to retrieve columns of the table
                                 sqlFields += String.Format(" AND c.TABLE_NAME = '{0}' AND (", strTablename);
 
-                                // Add WHERE clause to search for columns containing symbols in their names
+                                // Add WHERE clause to search for columns containing symbols in their names                                
                                 for (int i = 0; i < symbols.Length; i++)
                                 {
-                                    sqlFields += String.Format("c.COLUMN_NAME like '%{0}%'", symbols[i]);
+                                    switch (symbols[i])
+                                    {
+                                        case "_":
+                                        case "%":
+                                            sqlFields += String.Format("c.COLUMN_NAME like '%\\_%' ESCAPE '\\'  OR c.COLUMN_NAME like '%\\%%' ESCAPE '\\'", symbols[i]);
+                                            break;
+                                        default:
+                                            sqlFields += String.Format("c.COLUMN_NAME like '%{0}%'", symbols[i]);
+                                            break;
+                                    }
+
                                     if (i < symbols.Length - 1)
                                         sqlFields += " OR ";
                                 }

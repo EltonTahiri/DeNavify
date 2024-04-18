@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             username = new TextBox();
             DbUSER = new Label();
@@ -43,6 +44,7 @@
             helpProvider2 = new HelpProvider();
             helpProvider = new HelpProvider();
             DeNavify = new MaterialSkin.Controls.MaterialButton();
+            imageList1 = new ImageList(components);
             SuspendLayout();
             // 
             // username
@@ -158,6 +160,12 @@
             DeNavify.UseVisualStyleBackColor = true;
             DeNavify.Click += DeNavifyButton_Click;
             // 
+            // imageList1
+            // 
+            imageList1.ColorDepth = ColorDepth.Depth8Bit;
+            imageList1.ImageSize = new Size(16, 16);
+            imageList1.TransparentColor = Color.Transparent;
+            // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -210,5 +218,6 @@
         private HelpProvider helpProvider2;
         private HelpProvider helpProvider;
         private MaterialSkin.Controls.MaterialButton DeNavify;
+        private ImageList imageList1;
     }
 }
