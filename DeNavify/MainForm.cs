@@ -307,35 +307,35 @@ namespace DeNavify
             }
         }
 
-private void label3_Click(object sender, EventArgs e)
-{
+        private void label3_Click(object sender, EventArgs e)
+        {
 
-}
+        }
 
-private void DbComboBox_SelectedIndexChanged(object sender, EventArgs e)
-{
+        private void DbComboBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
 
-}
+        }
 
-private void label2_Click(object sender, EventArgs e)
-{
+        private void label2_Click(object sender, EventArgs e)
+        {
 
-}
+        }
 
-private void DbServer_TextChanged(object sender, EventArgs e)
-{
+        private void DbServer_TextChanged(object sender, EventArgs e)
+        {
 
-}
+        }
 
-private void DbPass_Click(object sender, EventArgs e)
-{
+        private void DbPass_Click(object sender, EventArgs e)
+        {
 
-}
+        }
 
-private void SymbolBox_TextChanged(object sender, EventArgs e)
-{
+        private void SymbolBox_TextChanged(object sender, EventArgs e)
+        {
 
-}
+        }
 
 
     }
