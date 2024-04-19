@@ -120,16 +120,18 @@
             DbComboBox.Size = new Size(136, 23);
             DbComboBox.TabIndex = 3;
             DbComboBox.SelectedIndexChanged += DbComboBox_SelectedIndexChanged;
+            DbComboBox.Enter += DbComboBox_Enter;
             // 
             // label3
             // 
             label3.AutoSize = true;
-            label3.Location = new Point(62, 235);
+            label3.Location = new Point(29, 235);
             label3.Name = "label3";
-            label3.Size = new Size(153, 15);
+            label3.Size = new Size(276, 15);
             label3.TabIndex = 8;
-            label3.Text = "Write a character to remove";
+            label3.Text = "Write a character to remove separated by a comma";
             label3.TextAlign = ContentAlignment.TopRight;
+            label3.Click += label3_Click_1;
             // 
             // SymbolBox
             // 

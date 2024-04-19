@@ -1,17 +1,27 @@
-using System;
-using System.Data;
-using System.Data.SqlClient;
-using System.Windows.Forms;
-using MaterialSkin;
-using MaterialSkin.Controls;
-
 namespace DeNavify
 {
+    using MaterialSkin;
+    using MaterialSkin.Controls;
+    using System;
+    using System.Data;
+    using System.Data.SqlClient;
+    using System.Windows.Forms;
+
+    /// <summary>
+    /// Defines the <see cref="MainForm" />
+    /// </summary>
     public partial class MainForm : MaterialForm
     {
+        /// <summary>
+        /// Defines the materialSkinManager
+        /// </summary>
         private MaterialSkinManager materialSkinManager;
 
         // Constructor
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MainForm"/> class.
+        /// </summary>
         public MainForm()
         {
             InitializeComponent();
@@ -22,16 +32,26 @@ namespace DeNavify
             // Define color scheme
             materialSkinManager.ColorScheme = new ColorScheme(Primary.Blue800, Primary.Blue900, Primary.Blue500, Accent.LightBlue200, TextShade.WHITE);
         }
+
+        /// <summary>
+        /// The Form1_Load
+        /// </summary>
+        /// <param name="sender">The sender<see cref="object"/></param>
+        /// <param name="e">The e<see cref="EventArgs"/></param>
         private void Form1_Load(object sender, EventArgs e)
         {
-            LoadDatabases();
         }
 
         // Method to load databases into ComboBox
+
+        /// <summary>
+        /// The LoadDatabases
+        /// </summary>
         private void LoadDatabases()
         {
             string server = DbServer.Text.Trim();
-            string connectionString = $"Data Source={server};Integrated Security=True";
+            string connectionString = $"Data Source={server};User Id={username.Text}; Password={password.Text};";
+            DbComboBox.Items.Clear();
 
             try
             {
@@ -50,12 +70,16 @@ namespace DeNavify
             }
             catch (Exception ex)
             {
-                // Show error message if database retrieval fails
-                MessageBox.Show($"An error occurred while fetching databases: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         // Event handler for DeNavifyButton click
+
+        /// <summary>
+        /// The DeNavifyButton_Click
+        /// </summary>
+        /// <param name="sender">The sender<see cref="object"/></param>
+        /// <param name="e">The e<see cref="EventArgs"/></param>
         private void DeNavifyButton_Click(object sender, EventArgs e)
         {
             // Split symbols entered in SymbolBox by comma
@@ -104,7 +128,6 @@ namespace DeNavify
                 using (SqlConnection connection = new SqlConnection(connectionString))
                 {
                     connection.Open();
-                    MessageBox.Show("Connection successful!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                     // Build SQL script to rename tables and columns
                     string script = $@"DECLARE @oldTableName NVARCHAR(255)
@@ -173,7 +196,7 @@ namespace DeNavify
                         {
                             case "_":
                             case "%":
-                                sql += String.Format("t.TABLE_NAME like '%\\_{0}%' ESCAPE '\\' OR t.TABLE_NAME like '%\\%{0}%' ESCAPE '\\')", symbols[i]);
+                                sql += String.Format("t.TABLE_NAME LIKE '%\\_%' ESCAPE '\\' OR t.TABLE_NAME LIKE '%\\%%' ESCAPE '\\'", symbols[i]);
                                 break;
                             default:
                                 sql += String.Format("t.TABLE_NAME like '%{0}%'", symbols[i]);
@@ -183,11 +206,11 @@ namespace DeNavify
                         if (i < symbols.Length - 1)
                             sql += " OR ";
                     }
-                  
+                    sql += ")";
 
                     // SQL query to retrieve columns matching symbols
-                    string sqlFields = "select * from INFORMATION_SCHEMA.COLUMNS c INNER JOIN INFORMATION_SCHEMA.TABLES t on t.TABLE_NAME = c.TABLE_NAME and t.TABLE_CATALOG = c.TABLE_CATALOG where c.TABLE_CATALOG = '" +"'"+ database + "' " +"AND t.TABLE_TYPE='TABLE' and";
-                  
+                    string sqlFields = "select * from INFORMATION_SCHEMA.COLUMNS c INNER JOIN INFORMATION_SCHEMA.TABLES t on t.TABLE_NAME = c.TABLE_NAME and t.TABLE_CATALOG = c.TABLE_CATALOG where c.TABLE_CATALOG = '" + "'" + database + "' " + "AND t.TABLE_TYPE='TABLE' and";
+
                     // List to store tables and their changed fields
                     List<ChangedTable> tablesToBeChanged = new List<ChangedTable>();
 
@@ -255,13 +278,23 @@ namespace DeNavify
                     }
 
                     // SQL query to retrieve columns matching symbols independent of table names
-                    string sqlFieldsInd = "select * from INFORMATION_SCHEMA.COLUMNS c where c.TABLE_CATALOG = '" + database + "'";
+                    string sqlFieldsInd = "select * from INFORMATION_SCHEMA.COLUMNS c INNER JOIN INFORMATION_SCHEMA.TABLES t on t.TABLE_NAME = c.TABLE_NAME and t.TABLE_CATALOG = c.TABLE_CATALOG where c.TABLE_CATALOG = '" + database + "'";
                     sqlFieldsInd += " AND (";
 
                     // Build WHERE clause to search for columns containing symbols in their names
                     for (int i = 0; i < symbols.Length; i++)
                     {
-                        sqlFieldsInd += String.Format("c.COLUMN_NAME like '%{0}%'", symbols[i]);
+                        switch (symbols[i])
+                        {
+                            case "_":
+                            case "%":
+                                sqlFieldsInd += String.Format("c.COLUMN_NAME like '%\\_%' ESCAPE '\\'  OR c.COLUMN_NAME like '%\\%%' ESCAPE '\\'", symbols[i]);
+                                break;
+                            default:
+                                sqlFieldsInd += String.Format("c.COLUMN_NAME like '%{0}%'", symbols[i]);
+                                break;
+                        }
+
                         if (i < symbols.Length - 1)
                             sqlFieldsInd += " OR ";
                     }
@@ -305,7 +338,14 @@ namespace DeNavify
                         }
 
                         // Show message indicating the changes made
-                        MessageBox.Show(strMessage);
+                        if (tablesToBeChanged.Count > 0)
+                        {
+                            MessageBox.Show(strMessage);
+                        }
+                        else
+                        {
+                            MessageBox.Show("No changes have been made");
+                        }
                     }
                 }
             }
@@ -316,36 +356,68 @@ namespace DeNavify
             }
         }
 
+        /// <summary>
+        /// The label3_Click
+        /// </summary>
+        /// <param name="sender">The sender<see cref="object"/></param>
+        /// <param name="e">The e<see cref="EventArgs"/></param>
         private void label3_Click(object sender, EventArgs e)
         {
-
         }
 
+        /// <summary>
+        /// The DbComboBox_SelectedIndexChanged
+        /// </summary>
+        /// <param name="sender">The sender<see cref="object"/></param>
+        /// <param name="e">The e<see cref="EventArgs"/></param>
         private void DbComboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
-
         }
 
+        /// <summary>
+        /// The label2_Click
+        /// </summary>
+        /// <param name="sender">The sender<see cref="object"/></param>
+        /// <param name="e">The e<see cref="EventArgs"/></param>
         private void label2_Click(object sender, EventArgs e)
         {
-
         }
 
+        /// <summary>
+        /// The DbServer_TextChanged
+        /// </summary>
+        /// <param name="sender">The sender<see cref="object"/></param>
+        /// <param name="e">The e<see cref="EventArgs"/></param>
         private void DbServer_TextChanged(object sender, EventArgs e)
         {
-
         }
 
+        /// <summary>
+        /// The DbPass_Click
+        /// </summary>
+        /// <param name="sender">The sender<see cref="object"/></param>
+        /// <param name="e">The e<see cref="EventArgs"/></param>
         private void DbPass_Click(object sender, EventArgs e)
         {
-
         }
 
+        /// <summary>
+        /// The SymbolBox_TextChanged
+        /// </summary>
+        /// <param name="sender">The sender<see cref="object"/></param>
+        /// <param name="e">The e<see cref="EventArgs"/></param>
         private void SymbolBox_TextChanged(object sender, EventArgs e)
+        {
+        }
+
+        private void DbComboBox_Enter(object sender, EventArgs e)
+        {
+            LoadDatabases();
+        }
+
+        private void label3_Click_1(object sender, EventArgs e)
         {
 
         }
-
-
     }
 }
