@@ -11,12 +11,14 @@ DeNavify is a simple tool designed to streamline database management by removing
 
 
 
+
 ## Installation
 
-Clone or download the repository.
-Open the solution in Visual Studio.
-Build the solution to generate the executable file.
-Run the executable to launch DeNavify.
+1. Navigate to the "Releases" section of this repository.
+2. Find the latest release and locate the `.exe` file under the assets.
+3. Download the `.exe` file to your computer.
+4. Run the downloaded `.exe` file to launch DeNavify.
+
 ```
     
 ## Usage
