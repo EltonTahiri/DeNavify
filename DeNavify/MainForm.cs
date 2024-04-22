@@ -189,7 +189,7 @@ namespace DeNavify
 
                     // SQL query to retrieve tables matching symbols
                     string sql = String.Format("SELECT * FROM INFORMATION_SCHEMA.TABLES t " +
-                    "WHERE T.TABLE_CATALOG = '{0}' AND T.TABLE_TYPE='TABLE' AND (", database);
+                    "WHERE T.TABLE_CATALOG = '{0}' AND T.TABLE_TYPE LIKE '%TABLE%' AND (", database);
 
                     for (int i = 0; i < symbols.Length; i++)
                     {
@@ -210,7 +210,7 @@ namespace DeNavify
                     sql += ")";
 
                     // SQL query to retrieve columns matching symbols
-                    string sqlFields = "select * from INFORMATION_SCHEMA.COLUMNS c INNER JOIN INFORMATION_SCHEMA.TABLES t on t.TABLE_NAME = c.TABLE_NAME and t.TABLE_CATALOG = c.TABLE_CATALOG where c.TABLE_CATALOG = '" + "'" + database + "' " + "AND t.TABLE_TYPE='TABLE' and";
+                    string sqlFields = "select * from INFORMATION_SCHEMA.COLUMNS c INNER JOIN INFORMATION_SCHEMA.TABLES t on t.TABLE_NAME = c.TABLE_NAME and t.TABLE_CATALOG = c.TABLE_CATALOG where c.TABLE_CATALOG = '"+ database + "' " + "AND t.TABLE_TYPE LIKE '%TABLE%' ";
 
                     // List to store tables and their changed fields
                     List<ChangedTable> tablesToBeChanged = new List<ChangedTable>();
@@ -279,7 +279,7 @@ namespace DeNavify
                     }
 
                     // SQL query to retrieve columns matching symbols independent of table names
-                    string sqlFieldsInd = "select * from INFORMATION_SCHEMA.COLUMNS c INNER JOIN INFORMATION_SCHEMA.TABLES t on t.TABLE_NAME = c.TABLE_NAME and t.TABLE_CATALOG = c.TABLE_CATALOG where c.TABLE_CATALOG = '" + database + "'";
+                    string sqlFieldsInd = "select * from INFORMATION_SCHEMA.COLUMNS c INNER JOIN INFORMATION_SCHEMA.TABLES t on t.TABLE_NAME = c.TABLE_NAME and t.TABLE_CATALOG = c.TABLE_CATALOG where c.TABLE_CATALOG = '" + database + "' AND t.TABLE_TYPE LIKE '%TABLE%' ";
                     sqlFieldsInd += " AND (";
 
                     // Build WHERE clause to search for columns containing symbols in their names
