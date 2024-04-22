@@ -70,6 +70,7 @@ namespace DeNavify
             }
             catch (Exception ex)
             {
+                MessageBox.Show("An error occurred: " + ex.Message);
             }
         }
 
